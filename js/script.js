@@ -55,7 +55,7 @@ const Moyenne = (notes) => {
 
 */
 
-const list = document.querySelector("ul li:first-child");
+// const list = document.querySelector("ul li:first-child");
 
 /*
 setInterval ( ( ) =>{
@@ -65,10 +65,10 @@ setInterval ( ( ) =>{
 console.log(list);
 */
 
-const newLi = document.createElement('li');
+// const newLi = document.createElement('li');
 
-newLi.innerHTML = "Les bons mecs";
+// newLi.innerHTML = "Les bons mecs";
 
-// append renvoie l'élément à la fin
-// prepend renvoie l'élément au début
-document.querySelector('ul').prepend(newLi);
+// // append renvoie l'élément à la fin
+// // prepend renvoie l'élément au début
+// document.querySelector('ul').prepend(newLi);

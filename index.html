@@ -1,18 +1,377 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-    <title>Learn JS</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <title>Learn Angular</title>
 </head>
-<body>
-    
-    <div class="container mt-5">
-       
+
+<body ng-app>
+
+  <div class="container mt-5">
+
+    <input type="text" class="form-control mb-4" ng-model="query">
+
+    <div ng-init="users= ['Marc', 'Jean', 'John', 'Regis', 'Ferenc'] ">
+
+      <ul>
+        <li ng-repeat="user in users | filter: query"> {{ user }} </li>
+      </ul>
+
     </div>
-    
-    <script src="js/script.js"></script>
+
+
+    <!-- 
+            import { Component } from '@angular/core';
+import { DatePipe } from '@angular/common';
+
+@Component({
+  selector: 'app-votre-composant',
+  template: `
+    <p>Date formatée: {{ formattedDate }}</p>
+  `,
+})
+export class VotreComposant {
+  formattedDate: string;
+
+  constructor(private datePipe: DatePipe) {
+    const currentDate = new Date(); // Vous pouvez remplacer ceci par votre propre date
+    this.formattedDate = this.datePipe.transform(currentDate, 'dd/MM/yyyy');
+  }
+}
+
+
+@Component({
+  selector: 'app-votre-composant',
+  template: `
+    <p>Date formatée: {{ formattedDate }}</p>
+  `,
+})
+export class VotreComposant {
+  formattedDate: string;
+
+  constructor(private datePipe: DatePipe) {
+    const currentDate = new Date(); // Vous pouvez remplacer ceci par votre propre date
+    this.formattedDate = this.datePipe.transform(currentDate, 'dd/MM/yyyy');
+  }
+}
+
+
+search
+
+ng generate component search-example
+
+
+<Champ de recherche
+<input type="text" [(ngModel)]="filtreTexte" (ngModelChange)="appliquerFiltre()" placeholder="Rechercher...">
+
+ Section pour afficher les données filtrées -->
+    <!-- <div *ngFor="let donnee of donneesFiltrees">
+  <p>{{ donnee.nom }} - {{ donnee.autreAttribut }}</p>
+</div> 
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-search-example',
+  templateUrl: './search-example.component.html',
+  styleUrls: ['./search-example.component.css']
+})
+export class SearchExampleComponent {
+  filtreTexte: string;
+  donnees: any[] = [
+    { nom: 'Donnée 1', autreAttribut: 'valeur 1' },
+    { nom: 'Donnée 2', autreAttribut: 'valeur 2' },
+    { nom: 'Donnée 3', autreAttribut: 'valeur 3' },
+    // Ajoutez d'autres données ici
+  ];
+
+  donneesFiltrees: any[];
+
+  appliquerFiltre() {
+    // Vérifiez si filtreTexte est défini
+    if (this.filtreTexte) {
+      // Utilisez la méthode filter() pour filtrer les données en fonction de filtreTexte
+      this.donneesFiltrees = this.donnees.filter(donnee =>
+        donnee.nom.includes(this.filtreTexte) || donnee.autreAttribut.includes(this.filtreTexte)
+      );
+    } else {
+      // Si le champ de recherche est vide, affichez toutes les données
+      this.donneesFiltrees = this.donnees;
+    }
+  }
+}
+
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms'; // Importez FormsModule pour utiliser ngModel
+
+import { AppComponent } from './app.component';
+import { SearchExampleComponent } from './search-example/search-example.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    SearchExampleComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule // N'oubliez pas d'ajouter FormsModule ici
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+Album service
+
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AlbumService {
+  private albums: Album[] = [
+    { id: '1', title: 'Album 1', artist: 'Artist 1', tracks: ['Track 1', 'Track 2', 'Track 3'] },
+    { id: '2', title: 'Album 2', artist: 'Artist 2', tracks: ['Track 1', 'Track 2', 'Track 3'] },
+    // Ajoutez ici d'autres albums
+  ];
+
+  getAlbums(): Album[] {
+    return this.albums;
+  }
+
+  getAlbum(id: string): Album | undefined {
+    return this.albums.find(album => album.id === id);
+  }
+
+  getAlbumList(id: string): string[] | undefined {
+    const album = this.albums.find(album => album.id === id);
+    return album ? album.tracks : undefined;
+  }
+}
+
+
+creation de la fonction native sort :albumService
+
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AlbumService {
+  private albums: Album[] = [
+    { id: '3', title: 'Album 3', artist: 'Artist 3', tracks: ['Track 1', 'Track 2', 'Track 3'] },
+    { id: '1', title: 'Album 1', artist: 'Artist 1', tracks: ['Track 1', 'Track 2', 'Track 3'] },
+    { id: '2', title: 'Album 2', artist: 'Artist 2', tracks: ['Track 1', 'Track 2', 'Track 3'] },
+    // Ajoutez ici d'autres albums
+  ];
+
+  getAlbums(): Album[] {
+    // Utilisez la fonction "sort" pour trier les albums par leur titre
+    this.albums.sort((a, b) => a.title.localeCompare(b.title));
+    return this.albums;
+  }
+
+  getAlbum(id: string): Album | undefined {
+    return this.albums.find(album => album.id === id);
+  }
+
+  getAlbumList(id: string): string[] | undefined {
+    const album = this.albums.find(album => album.id === id);
+    return album ? album.tracks : undefined;
+  }
+}
+
+
+la méthode count qui renverras le nombre d'albums : albumComponent
+
+import { Component } from '@angular/core';
+import { AlbumService } from 'chemin-vers-le-fichier-album.service'; // Remplacez le chemin par le bon
+
+@Component({
+  selector: 'app-albums',
+  templateUrl: './albums.component.html',
+  styleUrls: ['./albums.component.css']
+})
+export class AlbumsComponent {
+  constructor(private albumService: AlbumService) {}
+
+  // ...
+
+  count(): number {
+    return this.albumService.getAlbums().length;
+  }
+}
+
+
+affichage albumComponent.html
+
+<div>
+  Afficher le nombre d'albums en appelant la méthode count() 
+  <p>Nombre d'albums : {{ count() }}</p>
+</div>
+
+
+
+
+méthode paginate : albumService
+
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AlbumService {
+  private albums: Album[] = [
+    { id: '1', title: 'Album 1', artist: 'Artist 1', tracks: ['Track 1', 'Track 2', 'Track 3'] },
+    { id: '2', title: 'Album 2', artist: 'Artist 2', tracks: ['Track 1', 'Track 2', 'Track 3'] },
+    // Ajoutez ici d'autres albums
+  ];
+
+  paginate(start: number, end: number): Album[] {
+    return this.albums.slice(start, end);
+  }
+
+  // ...
+}
+
+
+albumComponent
+
+import { Component } from '@angular/core';
+import { AlbumService } from 'chemin-vers-le-fichier-album.service'; // Remplacez le chemin par le bon
+
+@Component({
+  selector: 'app-albums',
+  templateUrl: './albums.component.html',
+  styleUrls: ['./albums.component.css']
+})
+export class AlbumsComponent {
+  private start = 0;
+  private end = 10;
+  paginatedAlbums: Album[];
+
+  constructor(private albumService: AlbumService) {
+    this.paginatedAlbums = this.albumService.paginate(this.start, this.end);
+  }
+
+  // ...
+
+  onPageChange(pageNumber: number) {
+    this.start = (pageNumber - 1) * 10;
+    this.end = this.start + 10;
+    this.paginatedAlbums = this.albumService.paginate(this.start, this.end);
+  }
+}*
+albumComponent html
+
+<div>
+   Afficher la liste paginée des albums 
+  <ul>
+    <li *ngFor="let album of paginatedAlbums">
+      {{ album.title }}
+    </li>
+  </ul>
+
+  Ajouter un bouton de pagination pour changer de page 
+  <button *ngFor="let pageNumber of getPageNumbers()" (click)="onPageChange(pageNumber)">
+    {{ pageNumber }}
+  </button>
+</div>
+
+searchComponent ts 
+
+import { Component } from '@angular/core';
+import { AlbumService } from '../album.service';
+import { Album } from '../album';
+import { NgForm } from '@angular/forms';
+
+@Component({
+  selector: 'app-search',
+  templateUrl: './search.component.html',
+  styleUrls: ['./search.component.scss']
+})
+export class SearchComponent {
+  searchResults: Album[] = [];
+
+  constructor(private albumService: AlbumService) {}
+
+  onSubmit(form: NgForm): void {
+    const keyword = form.value['word'];
+    this.searchResults = this.albumService.getAlbumsByKeyword(keyword);
+  }
+}
+
+
+searchComponent html
+
+<form class="form-inline my-2 my-lg-0" (ngSubmit)="onSubmit(formSearch)" #formSearch="ngForm">
+  <input
+    name="word"
+    ngModel
+    required
+    class="form-control mr-sm-2"
+    type="search"
+    placeholder="Search"
+    aria-label="Search"
+  >
+  <button
+    [disabled]="formSearch.invalid"
+    class="btn btn-outline-success my-2 my-sm-0"
+    type="submit"
+  >
+    Search
+  </button>
+</form>
+
+<div *ngIf="searchResults.length > 0">
+  <ul>
+    <li *ngFor="let album of searchResults">
+      {{ album.title }}
+    </li>
+  </ul>
+</div>
+
+
+albumServicets
+
+import { Injectable } from '@angular/core';
+import { Album } from './album';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AlbumService {
+  private albums: Album[] = [
+    { id: '1', title: 'Album 1', artist: 'Artist 1', tracks: ['Track 1', 'Track 2', 'Track 3'] },
+    { id: '2', title: 'Album 2', artist: 'Artist 2', tracks: ['Track 1', 'Track 2', 'Track 3'] },
+    // Ajoutez ici d'autres albums
+  ];
+
+  // ...
+
+  getAlbumsByKeyword(keyword: string): Album[] {
+    keyword = keyword.trim().toLowerCase();
+    return this.albums.filter(album => album.title.toLowerCase().includes(keyword));
+  }
+}
+
+
+
+-->
+
+
+
+  </div>
+
 </body>
+
 </html>
