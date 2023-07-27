@@ -294,6 +294,404 @@ En utilisant cette logique de connexion simulée, le formulaire de connexion s'a
 Notez que cette implémentation est pour une démonstration basique et n'est pas sécurisée pour une utilisation réelle. Dans une application réelle, vous devrez implémenter une logique d'authentification plus robuste et sécurisée.
 
 
+Pour créer une méthode qui permet de rendre aléatoire le tableau de chaînes "albumsLists", vous pouvez ajouter une fonction appelée "shuffleAlbumsLists()" dans le fichier "album-details.component.ts". Cette fonction prendra le tableau "albumsLists" et le mélange de manière aléatoire. Ensuite, vous pouvez lier cette fonction à un bouton dans le fichier "album-details.component.html" pour l'exécuter lorsque le bouton est cliqué.
 
+Voici comment vous pouvez procéder :
+
+1. Dans "album-details.component.ts":
+
+```typescript
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
+import { Album, List } from '../album';
+import { AlbumService } from '../album.service';
+
+@Component({
+  selector: 'app-album-details',
+  templateUrl: './album-details.component.html',
+  styleUrls: ['./album-details.component.css']
+})
+export class AlbumDetailsComponent implements OnInit, OnChanges {
+  // ... Autres propriétés et méthodes existantes ...
+
+  shuffleAlbumsLists() {
+    if (this.albumsLists && this.albumsLists.length > 1) {
+      // Utilisation de l'algorithme de Fisher-Yates pour mélanger le tableau
+      for (let i = this.albumsLists.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this.albumsLists[i], this.albumsLists[j]] = [this.albumsLists[j], this.albumsLists[i]];
+      }
+    }
+  }
+
+  // ... Autres propriétés et méthodes existantes ...
+}
+```
+
+2. Dans "album-details.component.html", ajoutez le bouton pour déclencher la méthode de mélange :
+
+```html
+<!-- Le reste du code HTML existant -->
+<button class="w3-button w3-blue border-0 rounded fw-bold px-4 py-3 text-uppercase" (click)="shuffleAlbumsLists()">
+  Mélanger les détails
+</button>
+```
+
+Explication : La méthode "shuffleAlbumsLists()" utilise l'algorithme de Fisher-Yates pour mélanger de manière aléatoire les éléments du tableau "albumsLists". Lorsque le bouton est cliqué, la fonction est déclenchée et les détails sont mélangés de manière aléatoire. Assurez-vous que le bouton est placé à l'endroit approprié dans le HTML pour que l'utilisateur puisse cliquer dessus et déclencher le mélange des détails.
+
+Bien sûr, je vais vous expliquer chaque ligne de la méthode "shuffleAlbumsLists()" en détail :
+
+```typescript
+shuffleAlbumsLists() {
+  if (this.albumsLists && this.albumsLists.length > 1) {
+```
+Cette ligne définit la fonction "shuffleAlbumsLists()". Elle vérifie d'abord si "albumsLists" existe (c'est-à-dire s'il n'est pas nul ou indéfini) et s'il a plus d'un élément (longueur supérieure à 1). Si ces conditions sont satisfaites, le mélange peut être effectué. Si le tableau "albumsLists" est vide ou ne contient qu'un seul élément, il n'est pas nécessaire de le mélanger, donc la fonction s'arrête ici.
+
+```typescript
+  for (let i = this.albumsLists.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [this.albumsLists[i], this.albumsLists[j]] = [this.albumsLists[j], this.albumsLists[i]];
+  }
+```
+Ceci est la partie principale du mélange utilisant l'algorithme de Fisher-Yates (ou Knuth Shuffle). L'idée est de parcourir le tableau de droite à gauche, en partant du dernier élément (index "length - 1") jusqu'au deuxième élément (index 1). Pour chaque élément, nous choisissons un index aléatoire "j" entre 0 et l'index actuel "i" (inclus). Cela garantit que chaque élément a une chance égale d'être échangé avec n'importe quel autre élément du tableau.
+
+En utilisant la destructuration d'array, les éléments à l'index "i" et "j" sont échangés. Cela signifie que le contenu des deux positions est échangé dans le tableau "albumsLists", créant ainsi un mélange aléatoire.
+
+Notez que l'index "0" est exclu du mélange car il n'y a pas besoin d'échanger le premier élément avec lui-même.
+
+C'est ainsi que la méthode "shuffleAlbumsLists()" fonctionne pour mélanger aléatoirement le tableau "albumsLists". Une fois cette méthode appelée, l'ordre des éléments dans le tableau sera aléatoire, ce qui donne un ordre de détails aléatoire lorsque le composant est rendu dans le template.
+
+Pour implémenter la méthode `logout()` dans le composant HTML et gérer l style de navigation actif et non actif, nous aurons besoin de quelques étapes. D'abord, nous allons modifier le modèle HTML du composant `login.component.html` pour inclure la fonctionnalité de déconnexion (`logout()`), puis nous allons ajouter une logique pour gérer la classe CSS pour la navigation active/non active.
+
+Voici comment vous pouvez le faire :
+
+1. Modifier le modèle HTML (`login.component.html`) pour inclure la déconnexion et gérer le style de navigation active/non active :
+
+```html
+<!-- Affichez le nom d'utilisateur connecté s'il est connecté -->
+<div *ngIf="isLoggedIn">
+  <p>Bienvenue, {{ username }} !</p>
+  <button (click)="logout()">Déconnexion</button>
+</div>
+
+<!-- Afficher le formulaire de connexion s'il n'est pas connecté -->
+<div *ngIf="!isLoggedIn">
+  <label>Nom d'utilisateur:</label>
+  <input type="text" [(ngModel)]="username">
+  <label>Mot de passe:</label>
+  <input type="password" [(ngModel)]="password">
+  <button (click)="login()">Se connecter</button>
+</div>
+
+<!-- Navigation -->
+<ul>
+  <li [class.active]="isLoggedIn"><a routerLink="/">Accueil</a></li>
+  <li [class.active]="!isLoggedIn"><a routerLink="/login">Connexion</a></li>
+  <!-- Ajoutez d'autres liens de navigation ici -->
+</ul>
+```
+
+2. Assurez-vous que vous avez inclus le module `FormsModule` dans le module de ce composant pour que la liaison de données (ngModel) fonctionne correctement. Vous pouvez l'ajouter dans le fichier du module associé au composant (`login.module.ts`) :
+
+```typescript
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { LoginComponent } from './login.component';
+
+@NgModule({
+  declarations: [LoginComponent],
+  imports: [FormsModule],
+})
+export class LoginModule {}
+```
+
+3. Dans votre fichier CSS (`login.component.css`) ou tout autre fichier de style, vous pouvez ajouter les styles pour la classe `active` afin de mettre en évidence la navigation active :
+
+```css
+/* Styles pour la navigation active */
+ul li.active a {
+  color: blue;
+  font-weight: bold;
+}
+```
+
+Assurez-vous que vous avez configuré le routage approprié dans votre application Angular pour que le composant `LoginComponent` soit affiché lorsque l'utilisateur accède à `/login`.
+
+Avec cette implémentation, lorsque l'utilisateur est connecté, il verra un message de bienvenue avec un bouton de déconnexion. Sinon, il verra le formulaire de connexion. La classe CSS `active` sera appliquée au lien de navigation approprié en fonction de l'état de connexion de l'utilisateur.
+
+N'oubliez pas que pour une application réelle, vous devrez implémenter une authentification sécurisée avec un service d'authentification approprié plutôt que de simplement comparer le nom d'utilisateur et le mot de passe dans le code comme dans cet exemple de code.
+
+Pour implémenter une authentification sécurisée avec un service d'authentification approprié, nous allons suivre quelques étapes essentielles. Dans cet exemple, nous allons utiliser un service factice pour simuler l'authentification, mais en pratique, vous devez utiliser un service d'authentification réel qui communique avec un backend sécurisé pour gérer l'authentification.
+
+1. Créez un service d'authentification (`auth.service.ts`) pour gérer l'authentification :
+
+```typescript
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService {
+  private isLoggedIn: boolean = false;
+
+  // Méthode de connexion. Vérifiez les informations d'identification et retournez une Promise (ou Observable) résolue si les informations sont valides.
+  login(username: string, password: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      // Ici, vous devez effectuer une requête HTTP ou une vérification côté serveur pour valider les informations d'identification.
+      // Pour cet exemple, nous utiliserons des informations d'identification factices.
+      if (username === 'admin' && password === 'password') {
+        this.isLoggedIn = true;
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    });
+  }
+
+  // Méthode de déconnexion
+  logout(): void {
+    this.isLoggedIn = false;
+  }
+
+  // Méthode pour vérifier si l'utilisateur est connecté
+  isAuthenticated(): boolean {
+    return this.isLoggedIn;
+  }
+}
+```
+
+2. Dans votre composant `LoginComponent`, injectez le service d'authentification et utilisez-le pour gérer l'authentification et la déconnexion :
+
+```typescript
+import { Component } from '@angular/core';
+import { AuthService } from './auth.service';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
+})
+export class LoginComponent {
+  username: string;
+  password: string;
+
+  constructor(private authService: AuthService) {}
+
+  login() {
+    this.authService.login(this.username, this.password)
+      .then((isLoggedIn: boolean) => {
+        if (isLoggedIn) {
+          // Redirection vers une autre page après la connexion réussie (par exemple, la page d'accueil).
+          // Vous devez configurer le routage dans votre application pour cela.
+        } else {
+          alert('Nom d\'utilisateur ou mot de passe incorrect.');
+        }
+      });
+  }
+
+  logout() {
+    this.authService.logout();
+  }
+
+  // Méthode pour vérifier si l'utilisateur est connecté
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
+}
+```
+
+3. Modifiez le modèle HTML (`login.component.html`) pour afficher les éléments en fonction de l'état de connexion :
+
+```html
+<div *ngIf="isAuthenticated(); else loginForm">
+  <p>Bienvenue, {{ username }} !</p>
+  <button (click)="logout()">Déconnexion</button>
+</div>
+
+<ng-template #loginForm>
+  <label>Nom d'utilisateur:</label>
+  <input type="text" [(ngModel)]="username">
+  <label>Mot de passe:</label>
+  <input type="password" [(ngModel)]="password">
+  <button (click)="login()">Se connecter</button>
+</ng-template>
+
+<!-- Navigation -->
+<ul>
+  <li [class.active]="isAuthenticated()"><a routerLink="/">Accueil</a></li>
+  <li [class.active]="!isAuthenticated()"><a routerLink="/login">Connexion</a></li>
+  <!-- Ajoutez d'autres liens de navigation ici -->
+</ul>
+```
+
+Avec cette implémentation, l'authentification est gérée par le service `AuthService`, qui utilise une méthode de connexion pour vérifier les informations d'identification. Si l'utilisateur est connecté, il verra un message de bienvenue et un bouton de déconnexion. Sinon, il verra le formulaire de connexion.
+
+Encore une fois, rappelez-vous que ceci est un exemple simplifié pour expliquer le concept. En production, vous devrez mettre en œuvre une véritable authentification sécurisée avec des pratiques appropriées pour sécuriser les informations d'identification et les échanges de données entre le client et le serveur.
+
+Pour implémenter la méthode "logout()" dans le fichier du composant HTML ("login.component.html"), ainsi que la gestion de la classe CSS pour indiquer la navigation active ou non active, vous pouvez utiliser les directives Angular comme suit :
+
+1. Dans "login.component.html", ajoutez le bouton de déconnexion et gérez la navigation active/non active :
+
+```html
+<!-- Afficher le formulaire de connexion lorsque l'utilisateur n'est pas connecté -->
+<div *ngIf="!isLoggedIn">
+  <form>
+    <!-- Vos champs d'entrée pour le nom d'utilisateur et le mot de passe ici -->
+
+    <button class="w3-button w3-blue" (click)="login()">Se connecter</button>
+  </form>
+</div>
+
+<!-- Afficher le message de bienvenue et le bouton de déconnexion lorsque l'utilisateur est connecté -->
+<div *ngIf="isLoggedIn">
+  <p>Bienvenue, {{ username }} !</p>
+  <button class="w3-button w3-red" (click)="logout()">Se déconnecter</button>
+</div>
+```
+
+2. Dans "login.component.css", vous pouvez ajouter une classe CSS pour mettre en évidence le bouton actif et non actif :
+
+```css
+/* Style pour les boutons */
+.w3-button {
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Style pour le bouton actif */
+.w3-button.active {
+  background-color: #4CAF50; /* Couleur verte */
+  color: white;
+}
+
+/* Style pour le bouton non actif */
+.w3-button:not(.active) {
+  background-color: #f1f1f1; /* Couleur grise */
+  color: black;
+}
+```
+
+3. Enfin, dans "login.component.ts", implémentez la méthode "logout()" comme suit :
+
+```typescript
+logout() {
+  this.isLoggedIn = false;
+  this.username = '';
+  this.password = '';
+}
+```
+
+Explication : Dans le fichier HTML, nous utilisons les directives Angular `*ngIf` pour afficher les parties appropriées du contenu en fonction de l'état de connexion (`isLoggedIn`). Lorsque l'utilisateur n'est pas connecté, nous montrons le formulaire de connexion avec un bouton "Se connecter". Lorsqu'il est connecté, nous montrons un message de bienvenue avec un bouton "Se déconnecter".
+
+Nous utilisons également les directives Angular `(click)` pour appeler les méthodes `login()` et `logout()` lorsque les boutons sont cliqués.
+
+Dans le fichier CSS, nous avons défini des styles pour les boutons, ainsi qu'une classe `.active` pour mettre en évidence le bouton actif. Cette classe est appliquée au bouton "Se déconnecter" lorsque l'utilisateur est connecté, et le style appliqué en fonction de la classe active montre un fond vert pour le bouton actif et un fond gris pour le bouton non actif.
+
+Assurez-vous que le fichier CSS est correctement lié au composant pour que les styles soient appliqués. Avec ces modifications, vous aurez une gestion simple de l'authentification avec une interface utilisateur de connexion et de déconnexion dans votre composant de connexion.
+
+Pour rendre aléatoire le tableau de strings `albumsLists`, nous pouvons ajouter deux buttons dans le HTML de l'enfant `album-details.component.html`. Un bouton sera utilisé pour générer le mélange aléatoire du tableau, tandis que l'autre bouton permettra de cacher ou afficher la liste aléatoire.
+
+1. Ajoutons les deux boutons dans le HTML de `album-details.component.html` :
+
+```html
+<div class="card" *ngIf="album">
+    <!-- Le reste du contenu... -->
+
+    <!-- Bouton pour générer un mélange aléatoire -->
+    <button class="w3-button w3-blue border-0 rounded fw-bold px-4 py-3 text-uppercase"
+            (click)="shuffleAlbumsLists()">
+        Mélanger la liste
+    </button>
+
+    <!-- Bouton pour cacher/afficher la liste aléatoire -->
+    <button class="w3-button w3-blue border-0 rounded fw-bold px-4 py-3 text-uppercase"
+            (click)="toggleRandomList()">
+        {{ showRandomList ? 'Cacher la liste aléatoire' : 'Afficher la liste aléatoire' }}
+    </button>
+
+    <!-- Liste aléatoire -->
+    <ul class="list-group rounded-bottom m-0 border-0" *ngIf="showRandomList && randomAlbumsLists; else noRandomAlbumsLists">
+        <li class="list-group-item list-group-item-action w3-blue border-top-0 border-bottom-1 fw-semibold"
+            *ngFor="let detailsList of randomAlbumsLists"> {{ detailsList }} 
+        </li>
+    </ul>
+    <!-- Au cas où nous n'avons pas de détails lists aléatoires -->
+    <ng-template #noRandomAlbumsLists>
+        <ul class="list-group rounded-bottom m-0 border-0">
+            <li class="list-group-item list-group-item-action w3-blue border-top-0 border-bottom-1 fw-semibold">
+                Pas de détails Lists aléatoires</li>
+        </ul>
+    </ng-template>
+</div>
+```
+
+2. Maintenant, nous devons ajouter la logique dans le fichier `album-details.component.ts` pour gérer les actions des boutons et générer le mélange aléatoire :
+
+```typescript
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
+import { Album, List } from '../album';
+import { AlbumService } from '../album.service';
+
+@Component({
+    selector: 'app-album-details',
+    templateUrl: './album-details.component.html',
+    styleUrls: ['./album-details.component.css']
+})
+export class AlbumDetailsComponent implements OnInit, OnChanges {
+
+    // Classe Input permet de récupérer les données de l'enfant
+    @Input() album!: Album;
+
+    lists: List[] = [];
+
+    albumsLists!: string[] | undefined;
+
+    isPlaying: boolean = false;
+    showRandomList: boolean = false; // Propriété pour afficher/cacher la liste aléatoire
+    randomAlbumsLists: string[] = [];
+
+    constructor(private albumService: AlbumService) { }
+
+    ngOnInit() {
+        // this.album;
+    }
+
+    ngOnChanges(): void {
+        if (this.album !== undefined) {
+            this.albumsLists = this.albumService.getAlbumList(this.album.id)?.list;
+        }
+    }
+
+    @Output() onPlay: EventEmitter<Album> = new EventEmitter();
+
+    play(album: Album) {
+        this.onPlay.emit(album);
+        this.isPlaying = !this.isPlaying;
+    }
+
+    // Méthode pour générer le mélange aléatoire de la liste
+    shuffleAlbumsLists() {
+        if (this.albumsLists) {
+            this.randomAlbumsLists = this.shuffleArray([...this.albumsLists]);
+        }
+    }
+
+    // Méthode pour afficher/cacher la liste aléatoire
+    toggleRandomList() {
+        this.showRandomList = !this.showRandomList;
+    }
+
+    // Méthode pour mélanger le tableau de façon aléatoire
+    private shuffleArray(array: any[]) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+}
+```
+
+La méthode `shuffleArray()` utilise l'algorithme de mélange de Fisher-Yates pour générer un mélange aléatoire de la liste `albumsLists`. Lorsque l'utilisateur clique sur le bouton "Mélanger la liste", la méthode `shuffleAlbumsLists()` est appelée, ce qui génère une nouvelle liste aléatoire. Le bouton "Afficher la liste aléatoire" permet de basculer l'affichage de la liste aléatoire générée. Si l'utilisateur clique dessus, la liste sera affichée, sinon, elle sera cachée.
 
 ```
