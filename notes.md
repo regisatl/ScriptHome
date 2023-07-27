@@ -694,4 +694,457 @@ export class AlbumDetailsComponent implements OnInit, OnChanges {
 
 La méthode `shuffleArray()` utilise l'algorithme de mélange de Fisher-Yates pour générer un mélange aléatoire de la liste `albumsLists`. Lorsque l'utilisateur clique sur le bouton "Mélanger la liste", la méthode `shuffleAlbumsLists()` est appelée, ce qui génère une nouvelle liste aléatoire. Le bouton "Afficher la liste aléatoire" permet de basculer l'affichage de la liste aléatoire générée. Si l'utilisateur clique dessus, la liste sera affichée, sinon, elle sera cachée.
 
+Bien sûr! Pour créer un exemple de redirection après l'authentification réussie vers une autre page, vous devrez effectuer quelques étapes supplémentaires :
+
+1. Définir un routage dans votre application Angular (`app-routing.module.ts`) pour gérer les redirections :
+
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { LoginComponent } from './login/login.component';
+import { HomeComponent } from './home/home.component'; // Importez la composant vers lequel vous voulez rediriger après l'authentification
+
+const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] }, // Utilisez AuthGuard pour protéger l'accès à la page d'accueil
+  { path: '', redirectTo: 'login', pathMatch: 'full' }, // Redirigez vers la page de connexion par défaut
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+```
+
+2. Créez un service `AuthGuard` qui implémente l'interface `CanActivate` pour protéger l'accès à la page d'accueil (`home`) en vérifiant si l'utilisateur est connecté. Si l'utilisateur n'est pas connecté, redirigez-le vers la page de connexion (`login`) :
+
+```typescript
+import { Injectable } from '@angular/core';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuard implements CanActivate {
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    if (this.authService.isAuthenticated()) {
+      return true;
+    } else {
+      this.router.navigate(['/login']);
+      return false;
+    }
+  }
+}
+```
+
+3. Dans votre composant `LoginComponent`, importez `Router` depuis `@angular/router` pour pouvoir effectuer la redirection après l'authentification réussie :
+
+```typescript
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
+})
+export class LoginComponent {
+  // ... Autres codes du composant ...
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  login() {
+    this.authService.login(this.username, this.password)
+      .then((isLoggedIn: boolean) => {
+        if (isLoggedIn) {
+          // Redirection vers la page d'accueil après l'authentification réussie
+          this.router.navigate(['/home']);
+        } else {
+          alert('Nom d\'utilisateur ou mot de passe incorrect.');
+        }
+      });
+  }
+
+  // ... Autres codes du composant ...
+}
+```
+
+Assurez-vous que vous avez correctement configuré le routage et que les composants `LoginComponent` et `HomeComponent` sont créés et prêts à être utilisés.
+
+Avec ces étapes, après une authentification réussie en utilisant le formulaire de connexion, l'utilisateur sera redirigé automatiquement vers la page d'accueil (`/home`) grâce au routage et à l'utilisation de `Router` dans le composant `LoginComponent`.
+
+Pour afficher un message dans le DOM pour indiquer si les données d'identification sont incorrectes, nous pouvons utiliser une variable supplémentaire dans le composant pour stocker l'état de l'authentification et afficher un message d'erreur en fonction de cet état.
+
+1. Ajoutez une variable `isLoginError` dans le composant `LoginComponent` pour stocker l'état des données d'identification incorrectes :
+
+```typescript
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
+})
+export class LoginComponent {
+  username: string;
+  password: string;
+  isLoginError: boolean = false; // Variable pour indiquer si les données d'identification sont incorrectes
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  login() {
+    this.authService.login(this.username, this.password)
+      .then((isLoggedIn: boolean) => {
+        if (isLoggedIn) {
+          // Redirection vers la page d'accueil après l'authentification réussie
+          this.router.navigate(['/home']);
+        } else {
+          this.isLoginError = true; // Définir la variable sur true si les données d'identification sont incorrectes
+        }
+      });
+  }
+}
+```
+
+2. Modifiez le modèle HTML (`login.component.html`) pour afficher le message d'erreur lorsque `isLoginError` est `true` :
+
+```html
+<div *ngIf="isAuthenticated(); else loginForm">
+  <p>Bienvenue, {{ username }} !</p>
+  <button (click)="logout()">Déconnexion</button>
+</div>
+
+<ng-template #loginForm>
+  <label>Nom d'utilisateur:</label>
+  <input type="text" [(ngModel)]="username">
+  <label>Mot de passe:</label>
+  <input type="password" [(ngModel)]="password">
+  <button (click)="login()">Se connecter</button>
+  <!-- Afficher le message d'erreur si les données d'identification sont incorrectes -->
+  <div *ngIf="isLoginError" style="color: red; margin-top: 10px;">Nom d'utilisateur ou mot de passe incorrect.</div>
+</ng-template>
+
+<!-- Navigation -->
+<ul>
+  <li [class.active]="isAuthenticated()"><a routerLink="/">Accueil</a></li>
+  <li [class.active]="!isAuthenticated()"><a routerLink="/login">Connexion</a></li>
+  <!-- Ajoutez d'autres liens de navigation ici -->
+</ul>
+```
+
+Avec ces modifications, lorsque les données d'identification sont incorrectes, le message d'erreur "Nom d'utilisateur ou mot de passe incorrect." s'affichera dans le DOM en dessous du formulaire de connexion. Si les données d'identification sont correctes, l'utilisateur sera redirigé vers la page d'accueil comme indiqué précédemment.
+
+Pour utiliser la fonction `logout()` depuis le lien "logout" dans le template `app.component.html`, vous devez d'abord injecter le service `AuthService` dans le `AppComponent` pour pouvoir accéder à la méthode `logout()`. Ensuite, vous pouvez appeler la fonction `logout()` lorsque l'utilisateur clique sur le lien "logout".
+
+Voici comment vous pouvez le faire :
+
+1. Dans le fichier `app.component.ts`, importez le `AuthService` et ajoutez-le au constructeur du `AppComponent` :
+
+```typescript
+import { Component } from '@angular/core';
+import { AuthService } from './auth.service';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'Votre titre ici';
+
+  constructor(private authService: AuthService) {}
+
+  logout() {
+    this.authService.logout();
+  }
+}
+```
+
+2. Dans le fichier `app.component.html`, ajoutez le lien "logout" en utilisant la directive `(click)` pour appeler la fonction `logout()` :
+
+```html
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark py-4 fw-bold fs-5 position-sticky top-0 z-1 shadow">
+  <!-- ... contenu de la navigation ... -->
+
+  <!-- Lien "logout" -->
+  <ul class="navbar-nav">
+    <!-- ... autres liens ... -->
+    <li class="nav-item">
+      <a class="nav-link" (click)="logout()" style="cursor: pointer;">Se déconnecter</a>
+    </li>
+  </ul>
+
+  <!-- ... contenu de la navigation ... -->
+</nav>
+```
+
+Maintenant, lorsque l'utilisateur clique sur le lien "Se déconnecter", la fonction `logout()` sera appelée depuis le `AppComponent`, et elle appellera la méthode `logout()` du service `AuthService`, permettant à l'utilisateur de se déconnecter. Assurez-vous que votre `AuthService` gère correctement la déconnexion et met à jour l'état de connexion de l'utilisateur.
+
+Pour créer un nouveau service dans une application Angular, vous pouvez utiliser l'interface de ligne de commande Angular (CLI). Voici la commande pour créer un service `auth` nommé `AuthService` :
+
+```bash
+ng generate service auth
+```
+
+Cette commande va créer un nouveau dossier `auth` dans le répertoire `src/app`, contenant les fichiers nécessaires pour le service. Par défaut, le service est généré sans décorateur `@Injectable()` dans le fichier `auth.service.ts`. Vous devrez ajouter le décorateur `@Injectable()` pour pouvoir injecter le service dans d'autres composants.
+
+Une fois que le service `AuthService` est créé, vous pouvez ouvrir le fichier `auth.service.ts` dans le dossier `src/app/auth` et implémenter les méthodes de connexion, déconnexion et vérification de l'authentification selon vos besoins.
+
+Voici un exemple de code de base pour le fichier `auth.service.ts` :
+
+```typescript
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private isLoggedIn: boolean = false;
+
+  // Méthode de connexion. Vérifiez les informations d'identification et retournez une Promise (ou Observable) résolue si les informations sont valides.
+  login(username: string, password: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      // Ici, vous devez effectuer une requête HTTP ou une vérification côté serveur pour valider les informations d'identification.
+      // Pour cet exemple, nous utiliserons des informations d'identification factices.
+      if (username === 'admin' && password === 'password') {
+        this.isLoggedIn = true;
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    });
+  }
+
+  // Méthode de déconnexion
+  logout(): void {
+    this.isLoggedIn = false;
+  }
+
+  // Méthode pour vérifier si l'utilisateur est connecté
+  isAuthenticated(): boolean {
+    return this.isLoggedIn;
+  }
+}
+```
+
+N'oubliez pas que dans une application réelle, vous devrez implémenter une véritable authentification sécurisée en utilisant des pratiques appropriées pour sécuriser les informations d'identification et les échanges de données entre le client et le serveur. Vous devrez également communiquer avec un backend pour gérer l'authentification de manière sécurisée.
+
+Pour implémenter le code d'erreur 404 "Not Found" dans un projet Angular avec un composant `PageNotFoundComponent`, vous pouvez suivre les étapes suivantes :
+
+Étape 1: Créer le composant `PageNotFoundComponent`
+Tout d'abord, vous devez créer un nouveau composant qui représentera la page d'erreur 404. Vous pouvez utiliser la commande Angular CLI pour créer le composant :
+
+```bash
+ng generate component PageNotFound
+```
+
+Cela créera automatiquement un répertoire `page-not-found` contenant les fichiers nécessaires pour le composant.
+
+Étape 2: Configurer les routes
+Ensuite, vous devez configurer les routes de votre application pour rediriger vers `PageNotFoundComponent` lorsque l'URL demandée n'est pas trouvée.
+
+Dans le fichier `app-routing.module.ts`, vous pouvez définir une route de redirection à la fin de votre liste de routes :
+
+```typescript
+import { NgModule } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+
+const routes: Routes = [
+  // ... vos autres routes ...
+  
+  // Redirection vers PageNotFoundComponent pour toutes les autres routes
+  { path: '**', component: PageNotFoundComponent }
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+```
+
+Notez que cette route avec le chemin `"**"` agit comme une route de correspondance de secours, et si aucune autre route n'est trouvée avant, Angular redirigera automatiquement vers `PageNotFoundComponent`.
+
+Étape 3: Personnaliser le composant `PageNotFoundComponent`
+Ouvrez le fichier `page-not-found.component.ts` et personnalisez le contenu du composant comme vous le souhaitez. Par exemple, vous pouvez afficher un message d'erreur ou une image pour indiquer que la page n'a pas été trouvée.
+
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-page-not-found',
+  template: `
+    <div>
+      <h2>Erreur 404 - Page non trouvée</h2>
+      <!-- Personnalisez ici votre message ou votre image -->
+    </div>
+  `,
+  styles: []
+})
+export class PageNotFoundComponent { }
+```
+
+Étape 4: Utiliser le composant dans l'application
+Enfin, pour que votre composant `PageNotFoundComponent` soit utilisé lorsque l'URL n'est pas trouvée, assurez-vous que votre application utilise le `RouterOutlet` dans le fichier `app.component.html`. C'est dans cet emplacement que le `PageNotFoundComponent` sera rendu lorsque l'URL ne correspond à aucune autre route.
+
+```html
+<!-- app.component.html -->
+<router-outlet></router-outlet>
+```
+
+C'est tout ! Maintenant, lorsque l'utilisateur navigue vers une URL inconnue dans votre application Angular, il sera redirigé vers le composant `PageNotFoundComponent` et verra le message ou le contenu que vous avez défini pour l'erreur 404 "Not Found".
+
+Bien sûr ! Voici un exemple d'animation plus complexe pour un composant de liste dans un projet Angular. Dans cet exemple, nous allons créer une animation qui affiche et masque des éléments de liste avec un effet de fondu en entrée et en sortie.
+
+Étape 1: Préparation du projet
+Assurez-vous que les animations sont activées dans votre application Angular comme indiqué dans l'étape 1 du précédent exemple.
+
+Étape 2: Définir l'animation
+Dans votre composant, définissez l'animation dans le tableau `animations` de la métadonnée du composant. L'animation sera responsable de la transition entre l'état "visible" et "invisible" des éléments de la liste.
+
+```typescript
+import { Component } from '@angular/core';
+import { trigger, state, style, animate, transition, query, stagger } from '@angular/animations';
+
+@Component({
+  selector: 'app-list-component',
+  templateUrl: './list-component.component.html',
+  styleUrls: ['./list-component.component.css'],
+  animations: [
+    trigger('listAnimation', [
+      transition('* => *', [
+        query(':enter', [
+          style({ opacity: 0, transform: 'translateY(-10px)' }),
+          stagger(100, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+          ])
+        ], { optional: true }),
+        query(':leave', [
+          animate('300ms', style({ opacity: 0 }))
+        ], { optional: true })
+      ])
+    ])
+  ]
+})
+export class ListComponent {
+  items = ['Item 1', 'Item 2', 'Item 3'];
+
+  addItem() {
+    const newItem = `Item ${this.items.length + 1}`;
+    this.items.push(newItem);
+  }
+
+  removeItem(index: number) {
+    this.items.splice(index, 1);
+  }
+}
+```
+
+Étape 3: Appliquer l'animation à l'élément de liste
+Dans le template de votre composant (`list-component.component.html`), appliquez l'animation à l'élément de liste en utilisant la directive `[@listAnimation]` :
+
+```html
+<button (click)="addItem()">Ajouter un élément</button>
+
+<ul>
+  <li *ngFor="let item of items; let i = index" [@listAnimation]>
+    {{ item }} 
+    <button (click)="removeItem(i)">Supprimer</button>
+  </li>
+</ul>
+```
+
+Dans cet exemple, nous utilisons une liste (`<ul>`) avec une boucle `*ngFor` pour afficher les éléments. L'animation `listAnimation` est appliquée à chaque élément de la liste (`<li>`) à l'aide de la directive `[@listAnimation]`. L'animation `listAnimation` est déclenchée à chaque fois qu'un élément est ajouté ou supprimé de la liste.
+
+Lorsqu'un élément est ajouté, l'animation lui applique un effet de fondu en entrée avec un délai de 100ms entre chaque élément. Lorsqu'un élément est supprimé, il reçoit une animation de fondu en sortie avec une durée de 300ms.
+
+Ainsi, chaque fois que vous ajoutez ou supprimez un élément de la liste, les autres éléments de la liste seront animés de manière fluide en fonction de l'état de la liste. Cela crée une animation plus complexe et agréable visuellement pour l'utilisateur.
+
+Bien sûr ! Dans l'exemple d'animation pour un composant de liste, nous utilisons l'API d'animations intégrée à Angular pour créer des transitions fluides lorsqu'un élément est ajouté ou supprimé de la liste.
+
+Voici une explication plus détaillée du code :
+
+1. Importation des modules d'animation :
+   Tout d'abord, nous importons les modules nécessaires pour créer des animations dans notre composant.
+
+```typescript
+import { Component } from '@angular/core';
+import { trigger, state, style, animate, transition, query, stagger } from '@angular/animations';
+```
+
+2. Définition de l'animation :
+   Dans la métadonnée du composant, nous définissons notre animation à l'aide de la fonction `trigger`. Le nom `listAnimation` est utilisé pour identifier cette animation.
+
+```typescript
+@Component({
+  selector: 'app-list-component',
+  templateUrl: './list-component.component.html',
+  styleUrls: ['./list-component.component.css'],
+  animations: [
+    trigger('listAnimation', [
+      // Définition des transitions pour les états d'entrée et de sortie
+      transition('* => *', [
+        // Définition de l'animation pour les éléments qui entrent
+        query(':enter', [
+          style({ opacity: 0, transform: 'translateY(-10px)' }), // État initial
+          stagger(100, [
+            animate('500ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })) // État final
+          ])
+        ], { optional: true }),
+        // Définition de l'animation pour les éléments qui sortent
+        query(':leave', [
+          animate('300ms', style({ opacity: 0 })) // État final
+        ], { optional: true })
+      ])
+    ])
+  ]
+})
+```
+
+3. Utilisation de l'animation dans le template :
+   Dans le template (`list-component.component.html`), nous appliquons l'animation `listAnimation` à chaque élément de la liste à l'aide de la directive `[@listAnimation]`. La directive est utilisée dans la boucle `*ngFor`, qui itère sur la liste `items`.
+
+```html
+<button (click)="addItem()">Ajouter un élément</button>
+
+<ul>
+  <li *ngFor="let item of items; let i = index" [@listAnimation]> <!-- Application de l'animation ici -->
+    {{ item }} 
+    <button (click)="removeItem(i)">Supprimer</button>
+  </li>
+</ul>
+```
+
+4. Fonctions pour ajouter et supprimer des éléments :
+   Dans la classe du composant (`ListComponent`), nous avons deux fonctions pour ajouter et supprimer des éléments de la liste.
+
+```typescript
+export class ListComponent {
+  items = ['Item 1', 'Item 2', 'Item 3'];
+
+  addItem() {
+    const newItem = `Item ${this.items.length + 1}`;
+    this.items.push(newItem);
+  }
+
+  removeItem(index: number) {
+    this.items.splice(index, 1);
+  }
+}
+```
+
+Lorsque vous ajoutez un nouvel élément en cliquant sur le bouton "Ajouter un élément", l'animation sera déclenchée pour tous les éléments de la liste à l'aide de la transition `query(':enter', ...)`. Chaque élément nouvellement ajouté obtiendra un effet de fondu en entrée avec un délai de 100ms entre chaque élément, créant un effet de cascade.
+
+De même, lorsque vous supprimez un élément en cliquant sur le bouton "Supprimer", l'animation sera déclenchée pour l'élément supprimé à l'aide de la transition `query(':leave', ...)`. L'élément sortant obtiendra un effet de fondu en sortie avec une durée de 300ms, le faisant disparaître progressivement.
+
+En utilisant l'API d'animations d'Angular de cette manière, vous pouvez créer des transitions élégantes et fluides qui améliorent l'expérience utilisateur de votre application. Les animations peuvent être personnalisées davantage en ajustant les délais, les durées, les styles et les transitions selon vos besoins spécifiques.
 ```
